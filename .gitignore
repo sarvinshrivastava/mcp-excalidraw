@@ -1,0 +1,10 @@
+node_modules
+dist
+.turbo
+.vscode
+.DS_Store
+out
+.playwright*
+*.log
+coverage
+*.tsbuildinfo

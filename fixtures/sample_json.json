@@ -1,0 +1,11 @@
+{
+  "nodes": [
+    { "id": "A", "label": "Start" },
+    { "id": "B", "label": "Review" },
+    { "id": "C", "label": "Done" }
+  ],
+  "edges": [
+    { "from": "A", "to": "B", "label": "next" },
+    { "from": "B", "to": "C", "label": "approve" }
+  ]
+}
