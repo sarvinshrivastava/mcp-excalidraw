@@ -17,10 +17,10 @@ export default defineConfig({
         "src/excalidraw/export.ts",
       ],
       thresholds: {
-        statements: 70,
-        branches: 65,
-        functions: 70,
-        lines: 70,
+        statements: 90,
+        branches: 88, // actual: 88.88% — raise to 90 once branch coverage improves
+        functions: 90,
+        lines: 90,
       },
     },
   },
