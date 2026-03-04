@@ -1,0 +1,6 @@
+# Sample DSL flow
+Start -> "Enter OTP"
+"Enter OTP" -> Verify : submit
+Verify -> Done
+Verify -> Error : retry
+Done = "Completed"
