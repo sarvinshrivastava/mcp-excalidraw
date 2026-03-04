@@ -204,4 +204,33 @@ describe("layoutGraph — edge cases", () => {
     expect(nodes[0].id).toBe("myId");
     expect(nodes[0].label).toBe("My Label");
   });
+
+  it("positions all nodes in a graph containing a disconnected cycle", () => {
+    // A->B is a normal chain (A has indegree 0, BFS starts there).
+    // C->D->C is a pure cycle — both C and D have indegree > 0, so neither
+    // appears in the initial BFS start queue. They end up in `remaining` and
+    // are processed by the second pass in layoutGraph (lines 94-96).
+    const graph: FlowGraph = {
+      nodes: [
+        { id: "A", label: "A" },
+        { id: "B", label: "B" },
+        { id: "C", label: "C" },
+        { id: "D", label: "D" },
+      ],
+      edges: [
+        { from: "A", to: "B" },
+        { from: "C", to: "D" },
+        { from: "D", to: "C" },
+      ],
+    };
+    const { nodes } = layoutGraph(graph, cfg);
+    expect(nodes).toHaveLength(4);
+    // C and D must still be positioned even though they are in a cycle
+    expect(nodes.find((n) => n.id === "C")).toBeDefined();
+    expect(nodes.find((n) => n.id === "D")).toBeDefined();
+    // The cycle nodes should appear below the main chain
+    const b = nodes.find((n) => n.id === "B")!;
+    const c = nodes.find((n) => n.id === "C")!;
+    expect(c.y).toBeGreaterThan(b.y);
+  });
 });

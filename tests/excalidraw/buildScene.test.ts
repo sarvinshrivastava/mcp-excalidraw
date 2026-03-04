@@ -128,6 +128,16 @@ describe("buildScene — elements per graph component", () => {
 });
 
 describe("buildScene — theming", () => {
+  it("falls back to light theme palette for an unrecognised theme value", () => {
+    // palettes[theme] returns undefined for unknown values; the ?? operator
+    // then falls back to palettes.light — this covers the ?? branch (line 212).
+    const { scene } = buildScene(twoNodeGraph, {
+      ...defaultOpts,
+      theme: "neon" as any,
+    });
+    expect(scene.appState.viewBackgroundColor).toBe("#ffffff");
+  });
+
   it("light theme sets viewBackgroundColor to #ffffff", () => {
     const { scene } = buildScene(twoNodeGraph, {
       ...defaultOpts,

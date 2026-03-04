@@ -242,4 +242,10 @@ describe("parseFlow — error cases", () => {
       expect((err as ParseError).message).toMatch(/2/);
     }
   });
+
+  it("throws ParseError with 'Empty token' when a DSL line has no from-node (starts with ->)", () => {
+    // "-> Target" produces an empty from-token after regex split, hitting the
+    // `if (!trimmed) throw new ParseError("Empty token")` branch in makeParseToken.
+    expect(() => parseFlow("-> SomeTarget")).toThrowError(/Empty token/i);
+  });
 });
