@@ -8,7 +8,10 @@
     "dev": "tsx src/server.ts",
     "build": "tsup src/server.ts --format esm --dts --clean",
     "start": "node dist/server.js",
-    "smoke": "npm run build && node scripts/smoke.mjs"
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.17.6",
@@ -18,9 +21,11 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "@vitest/coverage-v8": "^2.1.0",
     "tsup": "^8.0.1",
     "tsx": "^4.7.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^2.1.0"
   },
   "engines": {
     "node": ">=18.18.0"
