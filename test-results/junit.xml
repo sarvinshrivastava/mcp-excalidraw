@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="131" failures="0" errors="0" time="0.634">
+    <testsuite name="tests/server.test.ts" timestamp="2026-03-04T11:17:58.230Z" hostname="Habuilds-MacBook-Pro.local" tests="17" failures="0" errors="0" skipped="0" time="0.017542291">
+        <testcase classname="tests/server.test.ts" name="DEFAULT_LAYOUT &gt; uses TB (top-to-bottom) direction" time="0.00072975">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="DEFAULT_LAYOUT &gt; has positive nodeWidth and nodeHeight" time="0.000130125">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="DEFAULT_LAYOUT &gt; has non-negative gaps" time="0.000110417">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateSceneFromFlow &gt; returns a scene and meta for a simple DSL flow" time="0.00956025">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateSceneFromFlow &gt; returns correct node/edge counts for a multi-step flow" time="0.000288333">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateSceneFromFlow &gt; handles a JSON-formatted flow" time="0.000995833">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateSceneFromFlow &gt; produces a valid Excalidraw scene envelope" time="0.000142667">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateSceneFromFlow &gt; uses the dark theme when requested" time="0.000108041">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateSceneFromFlow &gt; throws when given an empty flow string" time="0.000529375">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateSceneFromFlow &gt; throws when given an unparseable DSL line" time="0.000108875">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateSceneFromFlow &gt; is deterministic for the same seed and flow" time="0.000157167">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="exportSceneFiles &gt; delegates to exportSceneToFiles with the provided options" time="0.002101666">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="exportSceneFiles &gt; passes optional png options through" time="0.000931917">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="exportSceneFiles &gt; returns the files array from the underlying exporter" time="0.000278917">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateAndExport &gt; returns scenePath, files, and meta" time="0.000223875">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateAndExport &gt; always includes &apos;excalidraw&apos; format even when not requested" time="0.000250541">
+        </testcase>
+        <testcase classname="tests/server.test.ts" name="generateAndExport &gt; deduplicates formats (excalidraw requested + always-added)" time="0.000101292">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/excalidraw/buildScene.test.ts" timestamp="2026-03-04T11:17:58.232Z" hostname="Habuilds-MacBook-Pro.local" tests="26" failures="0" errors="0" skipped="0" time="0.015287041">
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — scene structure &gt; returns a scene object and a meta object" time="0.009969833">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — scene structure &gt; scene has type &apos;excalidraw&apos;" time="0.0002025">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — scene structure &gt; scene has version 2" time="0.00010275">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — scene structure &gt; scene source is &apos;mcp-excaligen&apos;" time="0.000106583">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — scene structure &gt; scene has an elements array" time="0.000096167">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — scene structure &gt; scene has appState and files fields" time="0.000100792">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — scene structure &gt; meta.nodes equals the number of nodes in the graph" time="0.000077709">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — scene structure &gt; meta.edges equals the number of edges in the graph" time="0.00007575">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — elements per graph component &gt; creates one rectangle element per node" time="0.000604208">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — elements per graph component &gt; creates one text element per node (for its label)" time="0.000143083">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — elements per graph component &gt; creates one arrow element per edge" time="0.000121792">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — elements per graph component &gt; creates an edge-label text element when the edge has a label" time="0.000161708">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — elements per graph component &gt; does NOT create an edge-label element when the edge has no label" time="0.000120417">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — elements per graph component &gt; produces no arrow elements when the graph has no edges" time="0.000108292">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — theming &gt; light theme sets viewBackgroundColor to #ffffff" time="0.000072292">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — theming &gt; dark theme sets viewBackgroundColor to #0b1221" time="0.000069166">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — theming &gt; light theme rectangles use light stroke color" time="0.000099291">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — theming &gt; dark theme rectangles use dark stroke color" time="0.00007925">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — determinism &gt; produces identical scenes for the same inputs" time="0.000108709">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — determinism &gt; produces different element IDs for different seeds" time="0.000462459">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — edge cases &gt; handles an empty graph (no nodes, no edges)" time="0.000117042">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — edge cases &gt; handles a graph with multiple edges including labelled ones" time="0.0001645">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — edge cases &gt; works with LR layout direction" time="0.00012325">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — edge cases &gt; element ids are non-empty strings" time="0.000173334">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — edge cases &gt; rectangle elements have correct width and height from layout config" time="0.000108917">
+        </testcase>
+        <testcase classname="tests/excalidraw/buildScene.test.ts" name="buildScene — edge cases &gt; ignores edges whose nodes are not in the graph" time="0.000104833">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/excalidraw/ids.test.ts" timestamp="2026-03-04T11:17:58.234Z" hostname="Habuilds-MacBook-Pro.local" tests="14" failures="0" errors="0" skipped="0" time="0.003532791">
+        <testcase classname="tests/excalidraw/ids.test.ts" name="makeIdGenerator &gt; returns a function" time="0.000739375">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="makeIdGenerator &gt; generates deterministic IDs for the same seed and inputs" time="0.00015725">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="makeIdGenerator &gt; generates different IDs for different seeds" time="0.000424708">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="makeIdGenerator &gt; prefixes each ID with the kind" time="0.000173125">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="makeIdGenerator &gt; returns a non-empty string" time="0.0001125">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="makeIdGenerator &gt; produces different IDs for different kinds with the same name" time="0.000076333">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="makeIdGenerator &gt; produces different IDs for different names with the same kind" time="0.000067916">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="makeIdGenerator &gt; is consistent across multiple calls with the same args" time="0.000061083">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="numericSeedFromId &gt; returns a number" time="0.00007125">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="numericSeedFromId &gt; returns the same value for the same input" time="0.000063542">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="numericSeedFromId &gt; returns different values for different inputs" time="0.000073958">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="numericSeedFromId &gt; returns a non-negative integer" time="0.0000925">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="numericSeedFromId &gt; handles an empty string without throwing" time="0.000512">
+        </testcase>
+        <testcase classname="tests/excalidraw/ids.test.ts" name="numericSeedFromId &gt; handles long strings" time="0.000126291">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/layout/layout.test.ts" timestamp="2026-03-04T11:17:58.236Z" hostname="Habuilds-MacBook-Pro.local" tests="13" failures="0" errors="0" skipped="0" time="0.013181958">
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — node geometry &gt; attaches x, y, width, height, and center to every node" time="0.0010605">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — node geometry &gt; respects the padding offset" time="0.000160791">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — node geometry &gt; passes through edges unchanged" time="0.009036709">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — TB (top-bottom) direction &gt; places a downstream node at a greater y than the upstream node" time="0.000165583">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — TB (top-bottom) direction &gt; places sibling nodes at the same y but different x" time="0.000244333">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — TB (top-bottom) direction &gt; handles a three-level chain with strictly increasing y" time="0.00011875">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — LR (left-right) direction &gt; places a downstream node at a greater x than the upstream node" time="0.000086708">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — LR (left-right) direction &gt; places sibling nodes at the same x but different y" time="0.000113291">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — edge cases &gt; handles an empty graph" time="0.000633708">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — edge cases &gt; handles a single isolated node" time="0.000117792">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — edge cases &gt; handles two disconnected nodes (no edges)" time="0.000089542">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — edge cases &gt; handles a graph with a diamond shape" time="0.000136875">
+        </testcase>
+        <testcase classname="tests/layout/layout.test.ts" name="layoutGraph — edge cases &gt; preserves node id and label in positioned output" time="0.000073458">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/layout/rng.test.ts" timestamp="2026-03-04T11:17:58.237Z" hostname="Habuilds-MacBook-Pro.local" tests="8" failures="0" errors="0" skipped="0" time="0.007714042">
+        <testcase classname="tests/layout/rng.test.ts" name="mulberry32 &gt; returns a function" time="0.000732708">
+        </testcase>
+        <testcase classname="tests/layout/rng.test.ts" name="mulberry32 &gt; returns values in [0, 1)" time="0.003746916">
+        </testcase>
+        <testcase classname="tests/layout/rng.test.ts" name="mulberry32 &gt; is deterministic — same seed produces the same sequence" time="0.000305625">
+        </testcase>
+        <testcase classname="tests/layout/rng.test.ts" name="mulberry32 &gt; produces different sequences for different seeds" time="0.000478">
+        </testcase>
+        <testcase classname="tests/layout/rng.test.ts" name="mulberry32 &gt; produces different values on consecutive calls" time="0.000107041">
+        </testcase>
+        <testcase classname="tests/layout/rng.test.ts" name="mulberry32 &gt; treats seed 0 and seed 1 as distinct" time="0.000071875">
+        </testcase>
+        <testcase classname="tests/layout/rng.test.ts" name="mulberry32 &gt; handles large seed values without throwing" time="0.000511292">
+        </testcase>
+        <testcase classname="tests/layout/rng.test.ts" name="mulberry32 &gt; produces numbers, not NaN or Infinity" time="0.001037458">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/flow/parse.test.ts" timestamp="2026-03-04T11:17:58.237Z" hostname="Habuilds-MacBook-Pro.local" tests="30" failures="0" errors="0" skipped="0" time="0.011128333">
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: basic edge parsing &gt; parses a simple two-node edge" time="0.001576458">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: basic edge parsing &gt; uses the node id as its label for unquoted identifiers" time="0.000491666">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: basic edge parsing &gt; parses an edge label using the colon syntax" time="0.000227625">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: basic edge parsing &gt; sets edge label to undefined when no colon is present" time="0.00023675">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: basic edge parsing &gt; trims whitespace around node ids and labels" time="0.000234458">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: basic edge parsing &gt; deduplicates nodes that appear in multiple edges" time="0.000160792">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: quoted labels &gt; parses a double-quoted label and sets it on the node" time="0.000231042">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: quoted labels &gt; parses a single-quoted label and sets it on the node" time="0.000082875">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: quoted labels &gt; does NOT use the raw quoted string as the node id" time="0.000475917">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: definition syntax &gt; assigns a label to a node via the id = &quot;label&quot; syntax" time="0.000087583">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: definition syntax &gt; allows the defined node to appear as both source and target" time="0.000128959">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: multi-line flows &gt; parses a three-node chain across two lines" time="0.000127416">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: multi-line flows &gt; ignores blank lines" time="0.000111417">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: multi-line flows &gt; ignores lines starting with #" time="0.00011225">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: multi-line flows &gt; ignores lines starting with //" time="0.000109792">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — DSL: multi-line flows &gt; parses a realistic multi-step flow using the fixture pattern" time="0.00021525">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — JSON input &gt; parses a minimal valid JSON flow" time="0.002000666">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — JSON input &gt; uses node labels from the JSON" time="0.000272709">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — JSON input &gt; preserves edge labels from JSON" time="0.000307166">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — JSON input &gt; auto-creates nodes that appear only in edges (not in nodes array)" time="0.000796667">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — JSON input &gt; handles a JSON flow with no edges" time="0.000403125">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — JSON input &gt; handles a JSON flow with no nodes and no edges" time="0.000269334">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — error cases &gt; throws ParseError for an empty string" time="0.000231625">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — error cases &gt; throws ParseError for whitespace-only input" time="0.000075667">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — error cases &gt; throws ParseError for a line with no arrow and no definition" time="0.000076">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — error cases &gt; throws ParseError for malformed JSON (syntax error)" time="0.000085208">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — error cases &gt; throws ParseError for structurally invalid JSON (wrong shape)" time="0.000394167">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — error cases &gt; throws ParseError for JSON nodes missing required id field" time="0.000143792">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — error cases &gt; throws ParseError for JSON nodes with empty id" time="0.00014475">
+        </testcase>
+        <testcase classname="tests/flow/parse.test.ts" name="parseFlow — error cases &gt; error message for an invalid line includes the line number" time="0.00016825">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/util/errors.test.ts" timestamp="2026-03-04T11:17:58.239Z" hostname="Habuilds-MacBook-Pro.local" tests="12" failures="0" errors="0" skipped="0" time="0.004650625">
+        <testcase classname="tests/util/errors.test.ts" name="ValidationError &gt; has the correct name" time="0.000775875">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ValidationError &gt; stores the provided message" time="0.000094458">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ValidationError &gt; is an instance of Error" time="0.000117958">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ValidationError &gt; is an instance of ValidationError" time="0.000068042">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ValidationError &gt; can be caught as an Error" time="0.000169958">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ValidationError &gt; preserves the stack trace" time="0.002136541">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ParseError &gt; has the correct name" time="0.000094292">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ParseError &gt; stores the provided message" time="0.000067708">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ParseError &gt; is an instance of Error" time="0.000073208">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ParseError &gt; is an instance of ParseError" time="0.000063583">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ParseError &gt; can be caught as an Error" time="0.000074333">
+        </testcase>
+        <testcase classname="tests/util/errors.test.ts" name="ParseError &gt; is distinct from ValidationError" time="0.0001375">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/util/paths.test.ts" timestamp="2026-03-04T11:17:58.240Z" hostname="Habuilds-MacBook-Pro.local" tests="11" failures="0" errors="0" skipped="0" time="0.004955041">
+        <testcase classname="tests/util/paths.test.ts" name="repoRoot &gt; is a non-empty string" time="0.000863584">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="repoRoot &gt; points to the directory that contains package.json" time="0.00013625">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="repoRoot &gt; is an absolute path" time="0.000068542">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="toRelative &gt; converts an absolute path to a path relative to repoRoot" time="0.000203958">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="toRelative &gt; returns an empty string for repoRoot itself" time="0.000176333">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="toRelative &gt; handles nested paths" time="0.000099166">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="toRelative &gt; does not include a leading separator" time="0.00015225">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="ensureDir &gt; creates a directory that does not yet exist" time="0.000520791">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="ensureDir &gt; does not throw when the directory already exists" time="0.000837417">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="ensureDir &gt; creates nested directories recursively" time="0.00071575">
+        </testcase>
+        <testcase classname="tests/util/paths.test.ts" name="ensureDir &gt; returns the directory path" time="0.000273291">
+        </testcase>
+    </testsuite>
+</testsuites>
