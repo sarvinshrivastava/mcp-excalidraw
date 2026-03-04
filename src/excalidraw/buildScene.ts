@@ -4,7 +4,6 @@ import {
   type ArrowElement,
   type ExcalidrawElement,
   type ExcalidrawScene,
-  type RectangleElement,
   type TextElement,
 } from "./schema.js";
 import { makeIdGenerator, numericSeedFromId } from "./ids.js";
@@ -213,12 +212,10 @@ export const buildScene = (
   const layout = layoutGraph(graph, options.layout);
   const idGen = makeIdGenerator(options.seed);
 
-  const nodeRects: Record<string, RectangleElement> = {};
   const elements: ExcalidrawElement[] = [];
 
   layout.nodes.forEach((node) => {
     const rect = makeRect(idGen, node, palette);
-    nodeRects[node.id] = rect;
     elements.push(rect, makeNodeText(idGen, node, palette));
   });
 

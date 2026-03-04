@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { parseFlow } from "./flow/parse.js";
 import { buildScene, type Theme } from "./excalidraw/buildScene.js";
 import { exportSceneToFiles, type ExportFormat } from "./excalidraw/export.js";
@@ -209,7 +210,7 @@ const getEntryUrl = () => {
   const entry = process.argv[1];
   if (!entry) return "";
   try {
-    return new URL(`file://${path.resolve(entry)}`).toString();
+    return pathToFileURL(path.resolve(entry)).href;
   } catch {
     return "";
   }

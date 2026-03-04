@@ -7,4 +7,5 @@ out
 .playwright*
 *.log
 coverage
+test-results
 *.tsbuildinfo

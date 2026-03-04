@@ -24,10 +24,10 @@ args = ["<ABS_PATH>/mcp-excaligen/dist/server.js"]
   - Input: `{ flow: string, seed?: number, theme?: "light"|"dark", layout?: { direction?: "TB"|"LR", nodeWidth?: number, nodeHeight?: number, hGap?: number, vGap?: number, padding?: number } }`
   - Output: `{ scene: { type: "excalidraw", version: 2, source: "mcp-excaligen", elements: [], appState: {}, files: {} }, meta: { nodes: number, edges: number } }`
 - `export_scene`
-  - Input: `{ scene: object, formats?: ["excalidraw"|"svg"|"png"], outDir?: string, baseName?: string, png?: { scale?: number } }`
+  - Input: `{ scene: object, formats?: ("excalidraw"|"svg"|"png")[], outDir?: string, baseName?: string, png?: { scale?: number } }`
   - Output: `{ files: [{ format, path }] }`
 - `generate_and_export`
-  - Input: `{ flow: string, seed?: number, theme?: "light"|"dark", layout?: Layout, outDir?: string, baseName?: string, formats?: ["excalidraw"|"svg"|"png"], png?: { scale?: number } }`
+  - Input: `{ flow: string, seed?: number, theme?: "light"|"dark", layout?: Layout, outDir?: string, baseName?: string, formats?: ("excalidraw"|"svg"|"png")[], png?: { scale?: number } }`
   - Output: `{ scenePath: string, files: [{ format, path }], meta: { nodes, edges } }`
 
 ### Example tool calls

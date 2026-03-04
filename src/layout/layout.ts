@@ -71,8 +71,9 @@ export const layoutGraph = (
     queue.forEach((id) => {
       if (!depth.has(id)) depth.set(id, initialDepth);
     });
-    while (queue.length > 0) {
-      const current = queue.shift() as string;
+    let i = 0;
+    while (i < queue.length) {
+      const current = queue[i++] as string;
       if (visited.has(current)) continue;
       visited.add(current);
       const currentDepth = depth.get(current) ?? initialDepth;
