@@ -9,3 +9,4 @@ out
 coverage
 test-results
 *.tsbuildinfo
+*.png

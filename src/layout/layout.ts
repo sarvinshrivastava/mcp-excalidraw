@@ -9,6 +9,8 @@ export type LayoutConfig = {
   hGap: number;
   vGap: number;
   padding: number;
+  /** When true, nodes expand horizontally to fit their label (nodeWidth becomes a minimum). */
+  fitContent?: boolean;
 };
 
 export type PositionedNode = FlowNode & {
@@ -29,6 +31,7 @@ const sortLex = (values: string[]) => [...values].sort((a, b) => a.localeCompare
 export const layoutGraph = (
   graph: FlowGraph,
   config: LayoutConfig,
+  nodeSizer?: (node: FlowNode) => { width: number; height: number },
 ): LayoutResult => {
   const indegree = new Map<string, number>();
   const adjacency = new Map<string, Set<string>>();
@@ -76,7 +79,7 @@ export const layoutGraph = (
       const current = queue[i++] as string;
       if (visited.has(current)) continue;
       visited.add(current);
-      const currentDepth = depth.get(current) ?? initialDepth;
+      const currentDepth = depth.get(current)!;
       maxDepth = Math.max(maxDepth, currentDepth);
       order.push(current);
       const neighbors = enqueueNeighbors(current, currentDepth);
@@ -98,41 +101,124 @@ export const layoutGraph = (
 
   const levels = new Map<number, string[]>();
   order.forEach((id) => {
-    const d = depth.get(id) ?? 0;
+    const d = depth.get(id)!;
     const level = levels.get(d) ?? [];
     level.push(id);
     levels.set(d, level);
   });
 
-  const positioned: PositionedNode[] = [];
-  const width = config.nodeWidth;
-  const height = config.nodeHeight;
+  // Compute per-node sizes (may vary when nodeSizer is provided).
+  const nodeSizes = new Map<string, { width: number; height: number }>();
+  graph.nodes.forEach((node) => {
+    nodeSizes.set(
+      node.id,
+      nodeSizer
+        ? nodeSizer(node)
+        : { width: config.nodeWidth, height: config.nodeHeight },
+    );
+  });
 
-  [...levels.keys()]
-    .sort((a, b) => a - b)
-    .forEach((lvl) => {
-      const ids = sortLex(levels.get(lvl) ?? []);
-      ids.forEach((id, idx) => {
-        const node = graph.nodes.find((n) => n.id === id);
-        if (!node) return;
-        const x =
-          config.direction === "TB"
-            ? config.padding + idx * (width + config.hGap)
-            : config.padding + lvl * (width + config.hGap);
-        const y =
-          config.direction === "TB"
-            ? config.padding + lvl * (height + config.vGap)
-            : config.padding + idx * (height + config.vGap);
-        positioned.push({
-          ...node,
-          x,
-          y,
-          width,
-          height,
-          center: { x: x + width / 2, y: y + height / 2 },
-        });
+  const sortedLevels = [...levels.keys()].sort((a, b) => a - b);
+
+  // Max dimension per level — used for cross-axis spacing.
+  const levelMaxW = new Map<number, number>();
+  const levelMaxH = new Map<number, number>();
+  sortedLevels.forEach((lvl) => {
+    let maxW = 0;
+    let maxH = 0;
+    levels.get(lvl)!.forEach((id) => {
+      const s = nodeSizes.get(id) ?? { width: config.nodeWidth, height: config.nodeHeight };;
+      if (s.width > maxW) maxW = s.width;
+      if (s.height > maxH) maxH = s.height;
+    });
+    levelMaxW.set(lvl, maxW);
+    levelMaxH.set(lvl, maxH);
+  });
+
+  // Cumulative main-axis offset per level.
+  const levelXOff = new Map<number, number>(); // used in LR
+  const levelYOff = new Map<number, number>(); // used in TB
+  let cumX = config.padding;
+  let cumY = config.padding;
+  sortedLevels.forEach((lvl) => {
+    levelXOff.set(lvl, cumX);
+    levelYOff.set(lvl, cumY);
+    cumX += levelMaxW.get(lvl)! + config.hGap;
+    cumY += levelMaxH.get(lvl)! + config.vGap;
+  });
+
+  // Build parent map for barycenter-based cross-axis alignment.
+  const parents = new Map<string, string[]>();
+  graph.nodes.forEach((n) => parents.set(n.id, []));
+  graph.edges.forEach((e) => parents.get(e.to)?.push(e.from));
+
+  // Cross-axis position per node (y for LR, x for TB).
+  const crossPos = new Map<string, number>();
+
+  sortedLevels.forEach((lvl) => {
+    const ids = levels.get(lvl)!;
+
+    // Step size along the cross axis for this level.
+    const crossStep =
+      config.direction === "LR"
+        ? levelMaxH.get(lvl)! + config.vGap
+        : levelMaxW.get(lvl)! + config.hGap;
+
+    // Ideal cross position = average of already-positioned parents' cross positions.
+    const ideal = new Map<string, number | null>();
+    ids.forEach((id) => {
+      const pids = (parents.get(id) ?? []).filter((pid) => crossPos.has(pid));
+      if (pids.length === 0) {
+        ideal.set(id, null);
+      } else {
+        const avg = pids.reduce((s, pid) => s + crossPos.get(pid)!, 0) / pids.length;
+        ideal.set(id, avg);
+      }
+    });
+
+    // Sort by ideal position when both nodes have a preference; otherwise keep lex order.
+    const sorted = sortLex(ids).sort((a, b) => {
+      const ia = ideal.get(a)!;
+      const ib = ideal.get(b)!;
+      if (ia === null || ib === null) return 0;
+      return ia - ib;
+    });
+
+    // Place each node: use ideal position but enforce minimum spacing from previous.
+    let prevPos = -Infinity;
+    sorted.forEach((id) => {
+      const pref = ideal.get(id)!;
+      const minPos = prevPos === -Infinity ? config.padding : prevPos + crossStep;
+      const pos =
+        pref !== null ? Math.max(minPos, Math.max(config.padding, pref)) : minPos;
+      crossPos.set(id, pos);
+      prevPos = pos;
+    });
+  });
+
+  const positioned: PositionedNode[] = [];
+
+  sortedLevels.forEach((lvl) => {
+    const ids = levels.get(lvl)!;
+    ids.forEach((id) => {
+      const node = graph.nodes.find((n) => n.id === id);
+      if (!node) return;
+      const { width, height } = nodeSizes.get(id)!;
+      const cross = crossPos.get(id)!;
+      const main =
+        config.direction === "LR" ? levelXOff.get(lvl)! : levelYOff.get(lvl)!;
+      const x = config.direction === "LR" ? main : cross;
+      const y = config.direction === "LR" ? cross : main;
+      positioned.push({
+        ...node,
+        x,
+        y,
+        width,
+        height,
+        center: { x: x + width / 2, y: y + height / 2 },
       });
     });
+  });
 
   return { nodes: positioned, edges: graph.edges };
 };

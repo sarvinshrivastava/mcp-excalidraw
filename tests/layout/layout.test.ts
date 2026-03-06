@@ -143,6 +143,58 @@ describe("layoutGraph — LR (left-right) direction", () => {
   });
 });
 
+describe("layoutGraph — nodeSizer", () => {
+  it("uses custom nodeSizer dimensions instead of config defaults", () => {
+    const graph: FlowGraph = {
+      nodes: [
+        { id: "A", label: "A" },
+        { id: "B", label: "B" },
+      ],
+      edges: [{ from: "A", to: "B" }],
+    };
+    const { nodes } = layoutGraph(graph, cfg, () => ({ width: 300, height: 80 }));
+    nodes.forEach((n) => {
+      expect(n.width).toBe(300);
+      expect(n.height).toBe(80);
+    });
+  });
+
+  it("nodeSizer overrides produce correct centers", () => {
+    const graph: FlowGraph = {
+      nodes: [{ id: "X", label: "X" }],
+      edges: [],
+    };
+    const { nodes } = layoutGraph(graph, cfg, () => ({ width: 200, height: 100 }));
+    expect(nodes[0].center.x).toBe(nodes[0].x + 100);
+    expect(nodes[0].center.y).toBe(nodes[0].y + 50);
+  });
+});
+
+describe("layoutGraph — barycenter alignment", () => {
+  it("aligns a single child to its parent cross-axis position (LR)", () => {
+    const lrCfg: LayoutConfig = { ...cfg, direction: "LR" };
+    // root → top (row 0), root → bottom (row 1), bottom → child
+    // child should be aligned with bottom, not top
+    const graph: FlowGraph = {
+      nodes: [
+        { id: "root", label: "Root" },
+        { id: "top", label: "Top" },
+        { id: "bottom", label: "Bottom" },
+        { id: "child", label: "Child" },
+      ],
+      edges: [
+        { from: "root", to: "top" },
+        { from: "root", to: "bottom" },
+        { from: "bottom", to: "child" },
+      ],
+    };
+    const { nodes } = layoutGraph(graph, lrCfg);
+    const bottom = nodes.find((n) => n.id === "bottom")!;
+    const child = nodes.find((n) => n.id === "child")!;
+    expect(child.y).toBe(bottom.y);
+  });
+});
+
 describe("layoutGraph — edge cases", () => {
   it("handles an empty graph", () => {
     const result = layoutGraph({ nodes: [], edges: [] }, cfg);
