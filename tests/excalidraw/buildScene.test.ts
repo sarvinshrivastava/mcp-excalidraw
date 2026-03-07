@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { buildScene } from "../../src/excalidraw/buildScene.js";
 import type { FlowGraph } from "../../src/flow/types.js";
 
+type AnyElement = Record<string, unknown>;
+
 const defaultLayout = {
   direction: "TB" as const,
   nodeWidth: 320,
@@ -128,6 +130,16 @@ describe("buildScene — elements per graph component", () => {
 });
 
 describe("buildScene — theming", () => {
+  it("falls back to light theme palette for an unrecognised theme value", () => {
+    // palettes[theme] returns undefined for unknown values; the ?? operator
+    // then falls back to palettes.light — this covers the ?? branch (line 212).
+    const { scene } = buildScene(twoNodeGraph, {
+      ...defaultOpts,
+      theme: "neon" as any,
+    });
+    expect(scene.appState.viewBackgroundColor).toBe("#ffffff");
+  });
+
   it("light theme sets viewBackgroundColor to #ffffff", () => {
     const { scene } = buildScene(twoNodeGraph, {
       ...defaultOpts,
@@ -246,5 +258,232 @@ describe("buildScene — edge cases", () => {
     const { scene } = buildScene(graph, defaultOpts);
     const arrows = scene.elements.filter((e) => e.type === "arrow");
     expect(arrows).toHaveLength(0);
+  });
+});
+
+const longLabelGraph: FlowGraph = {
+  nodes: [
+    {
+      id: "L",
+      label:
+        "This is a very long label that will definitely overflow the node bounding box and need to be truncated",
+    },
+    { id: "M", label: "Short" },
+  ],
+  edges: [{ from: "L", to: "M" }],
+};
+
+describe("buildScene — text overflow clamp", () => {
+  it("short label is not truncated (no ellipsis)", () => {
+    const { scene } = buildScene(twoNodeGraph, defaultOpts);
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const nodeAText = texts.find((t) => t["originalText"] === "Node A");
+    expect(nodeAText?.["text"]).not.toContain("…");
+    expect(nodeAText?.["text"]).toBe("Node A");
+  });
+
+  it("long label is truncated with ellipsis", () => {
+    const { scene } = buildScene(longLabelGraph, defaultOpts);
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const longText = texts.find(
+      (t) => typeof t["originalText"] === "string" && (t["originalText"] as string).startsWith("This is a very long"),
+    );
+    expect(longText?.["text"]).toContain("…");
+  });
+
+  it("clamped text element width does not exceed nodeWidth", () => {
+    const { scene } = buildScene(longLabelGraph, defaultOpts);
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const longText = texts.find(
+      (t) => typeof t["text"] === "string" && (t["text"] as string).includes("…"),
+    );
+    expect(longText?.["width"] as number).toBeLessThanOrEqual(defaultLayout.nodeWidth);
+  });
+
+  it("originalText is preserved as full untruncated label", () => {
+    const { scene } = buildScene(longLabelGraph, defaultOpts);
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const longText = texts.find(
+      (t) => typeof t["text"] === "string" && (t["text"] as string).includes("…"),
+    );
+    expect(longText?.["originalText"] as string).toContain("This is a very long label");
+    expect(longText?.["originalText"] as string).not.toContain("…");
+  });
+});
+
+describe("buildScene — style color overrides", () => {
+  it("nodeFill sets rect backgroundColor", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { nodeFill: "#ff0000" } });
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.backgroundColor).toBe("#ff0000");
+  });
+
+  it("nodeBorder sets rect strokeColor", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { nodeBorder: "#00ff00" } });
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.strokeColor).toBe("#00ff00");
+  });
+
+  it("nodeText sets node text strokeColor", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { nodeText: "#0000ff" } });
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const nodeText = texts.find((t) => t["originalText"] !== undefined);
+    expect(nodeText?.["strokeColor"]).toBe("#0000ff");
+  });
+
+  it("edgeColor sets arrow strokeColor", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { edgeColor: "#aabbcc" } });
+    const arrow = scene.elements.find((e) => e.type === "arrow");
+    expect(arrow?.strokeColor).toBe("#aabbcc");
+  });
+
+  it("edgeLabelColor sets edge label strokeColor", () => {
+    const graph: FlowGraph = {
+      nodes: [
+        { id: "P", label: "P" },
+        { id: "Q", label: "Q" },
+      ],
+      edges: [{ from: "P", to: "Q", label: "step" }],
+    };
+    const { scene } = buildScene(graph, { ...defaultOpts, style: { edgeLabelColor: "#123456" } });
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const edgeLabel = texts.find((t) => t["text"] === "step");
+    expect(edgeLabel?.["strokeColor"]).toBe("#123456");
+  });
+
+  it("canvasBackground sets appState.viewBackgroundColor", () => {
+    const { scene } = buildScene(twoNodeGraph, {
+      ...defaultOpts,
+      style: { canvasBackground: "#eeeeee" },
+    });
+    expect(scene.appState.viewBackgroundColor).toBe("#eeeeee");
+  });
+
+  it("dark theme with nodeFill override: override wins over dark palette", () => {
+    const { scene } = buildScene(twoNodeGraph, {
+      ...defaultOpts,
+      theme: "dark",
+      style: { nodeFill: "#custom" },
+    });
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.backgroundColor).toBe("#custom");
+  });
+
+  it("partial override: unset fields still come from theme palette", () => {
+    const { scene } = buildScene(twoNodeGraph, {
+      ...defaultOpts,
+      theme: "dark",
+      style: { nodeFill: "#custom" },
+    });
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.strokeColor).toBe("#e5e7eb"); // dark palette stroke, not overridden
+  });
+});
+
+describe("buildScene — style typography overrides", () => {
+  it("fontSize sets node text fontSize", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { fontSize: 24 } });
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const nodeText = texts.find((t) => t["originalText"] !== undefined);
+    expect(nodeText?.["fontSize"]).toBe(24);
+  });
+
+  it("edgeLabelFontSize sets edge label fontSize", () => {
+    const graph: FlowGraph = {
+      nodes: [
+        { id: "A2", label: "A2" },
+        { id: "B2", label: "B2" },
+      ],
+      edges: [{ from: "A2", to: "B2", label: "lbl" }],
+    };
+    const { scene } = buildScene(graph, { ...defaultOpts, style: { edgeLabelFontSize: 10 } });
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const edgeLabel = texts.find((t) => t["text"] === "lbl");
+    expect(edgeLabel?.["fontSize"]).toBe(10);
+  });
+
+  it("fontFamily:2 sets text element fontFamily", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { fontFamily: 2 } });
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    texts.forEach((t) => expect(t["fontFamily"]).toBe(2));
+  });
+
+  it("fontFamily:3 sets appState.currentItemFontFamily", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { fontFamily: 3 } });
+    expect(scene.appState.currentItemFontFamily).toBe(3);
+  });
+
+  it("default fontSize is 18 when style is omitted", () => {
+    const { scene } = buildScene(twoNodeGraph, defaultOpts);
+    const texts = scene.elements.filter((e) => e.type === "text") as AnyElement[];
+    const nodeText = texts.find((t) => t["originalText"] !== undefined);
+    expect(nodeText?.["fontSize"]).toBe(18);
+  });
+});
+
+describe("buildScene — style geometry/decoration overrides", () => {
+  it("strokeWidth:4 sets rect strokeWidth", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { strokeWidth: 4 } });
+    const rect = scene.elements.find((e) => e.type === "rectangle") as AnyElement | undefined;
+    expect(rect?.["strokeWidth"]).toBe(4);
+  });
+
+  it("strokeWidth:4 sets arrow strokeWidth", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { strokeWidth: 4 } });
+    const arrow = scene.elements.find((e) => e.type === "arrow") as AnyElement | undefined;
+    expect(arrow?.["strokeWidth"]).toBe(4);
+  });
+
+  it("roughness:2 sets rect roughness", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { roughness: 2 } });
+    const rect = scene.elements.find((e) => e.type === "rectangle") as AnyElement | undefined;
+    expect(rect?.["roughness"]).toBe(2);
+  });
+
+  it("fillStyle:hachure sets rect fillStyle", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { fillStyle: "hachure" } });
+    const rect = scene.elements.find((e) => e.type === "rectangle") as AnyElement | undefined;
+    expect(rect?.["fillStyle"]).toBe("hachure");
+  });
+
+  it("fillStyle:cross-hatch sets rect fillStyle", () => {
+    const { scene } = buildScene(twoNodeGraph, {
+      ...defaultOpts,
+      style: { fillStyle: "cross-hatch" },
+    });
+    const rect = scene.elements.find((e) => e.type === "rectangle") as AnyElement | undefined;
+    expect(rect?.["fillStyle"]).toBe("cross-hatch");
+  });
+
+  it("cornerRadius:false sets rect roundness to null", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { cornerRadius: false } });
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.roundness).toBeNull();
+  });
+
+  it("cornerRadius:true sets rect roundness to { type: 3 }", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { cornerRadius: true } });
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.roundness).toEqual({ type: 3 });
+  });
+
+  it("cornerRadius:8 sets rect roundness to { type: 2, value: 8 }", () => {
+    const { scene } = buildScene(twoNodeGraph, { ...defaultOpts, style: { cornerRadius: 8 } });
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.roundness).toEqual({ type: 2, value: 8 });
+  });
+
+  it("default (undefined style) sets rect roundness to { type: 3 }", () => {
+    const { scene } = buildScene(twoNodeGraph, defaultOpts);
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.roundness).toEqual({ type: 3 });
+  });
+});
+
+describe("buildScene — backwards compatibility", () => {
+  it("omitting style vs style:{} produces identical output", () => {
+    const { scene: s1 } = buildScene(twoNodeGraph, defaultOpts);
+    const { scene: s2 } = buildScene(twoNodeGraph, { ...defaultOpts, style: {} });
+    expect(JSON.stringify(s1)).toBe(JSON.stringify(s2));
   });
 });

@@ -7,8 +7,17 @@ vi.mock("../src/excalidraw/export.js", () => ({
   }),
 }));
 
+// Mock StdioServerTransport so startServer() can be exercised without real STDIO.
+vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
+  StdioServerTransport: vi.fn().mockImplementation(() => ({
+    start: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
+    send: vi.fn().mockResolvedValue(undefined),
+  })),
+}));
+
 // Import AFTER mock is declared (Vitest hoists vi.mock automatically).
-const { generateSceneFromFlow, exportSceneFiles, generateAndExport, DEFAULT_LAYOUT } =
+const { generateSceneFromFlow, exportSceneFiles, generateAndExport, DEFAULT_LAYOUT, startServer } =
   await import("../src/server.js");
 const { exportSceneToFiles } = await import("../src/excalidraw/export.js");
 
@@ -234,5 +243,78 @@ describe("generateAndExport", () => {
       (f: string) => f === "excalidraw",
     ).length;
     expect(excalidrawCount).toBe(1);
+  });
+});
+
+// ─────────────────────────────────────────────
+// generateSceneFromFlow — style option
+// ─────────────────────────────────────────────
+
+describe("generateSceneFromFlow — style option", () => {
+  it("style.canvasBackground sets scene.appState.viewBackgroundColor", () => {
+    const { scene } = generateSceneFromFlow({
+      flow: "A -> B",
+      seed: 1,
+      theme: "light",
+      layout: DEFAULT_LAYOUT,
+      style: { canvasBackground: "#123456" },
+    });
+    expect(scene.appState.viewBackgroundColor).toBe("#123456");
+  });
+
+  it("style.nodeFill sets rect backgroundColor", () => {
+    const { scene } = generateSceneFromFlow({
+      flow: "A -> B",
+      seed: 1,
+      theme: "light",
+      layout: DEFAULT_LAYOUT,
+      style: { nodeFill: "#abcdef" },
+    });
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.backgroundColor).toBe("#abcdef");
+  });
+
+  it("style.fontFamily sets appState.currentItemFontFamily", () => {
+    const { scene } = generateSceneFromFlow({
+      flow: "A -> B",
+      seed: 1,
+      theme: "light",
+      layout: DEFAULT_LAYOUT,
+      style: { fontFamily: 2 },
+    });
+    expect(scene.appState.currentItemFontFamily).toBe(2);
+  });
+
+  it("omitting style uses light theme defaults", () => {
+    const { scene } = generateSceneFromFlow({
+      flow: "A -> B",
+      seed: 1,
+      theme: "light",
+      layout: DEFAULT_LAYOUT,
+    });
+    expect(scene.appState.viewBackgroundColor).toBe("#ffffff");
+    const rect = scene.elements.find((e) => e.type === "rectangle");
+    expect(rect?.backgroundColor).toBe("#ffffff");
+  });
+
+  it("dark theme + style.canvasBackground: override wins", () => {
+    const { scene } = generateSceneFromFlow({
+      flow: "A -> B",
+      seed: 1,
+      theme: "dark",
+      layout: DEFAULT_LAYOUT,
+      style: { canvasBackground: "#override" },
+    });
+    expect(scene.appState.viewBackgroundColor).toBe("#override");
+  });
+});
+
+// ─────────────────────────────────────────────
+// startServer
+// ─────────────────────────────────────────────
+
+describe("startServer", () => {
+  it("resolves without throwing when transport is mocked", async () => {
+    await expect(startServer()).resolves.toBeUndefined();
   });
 });

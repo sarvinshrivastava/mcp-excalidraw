@@ -2,8 +2,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { parseFlow } from "./flow/parse.js";
-import { buildScene, type Theme } from "./excalidraw/buildScene.js";
+import { buildScene, type Theme, type StyleOptions } from "./excalidraw/buildScene.js";
 import { exportSceneToFiles, type ExportFormat } from "./excalidraw/export.js";
 import type { LayoutConfig } from "./layout/layout.js";
 import type { ExcalidrawScene } from "./excalidraw/schema.js";
@@ -27,6 +28,22 @@ const layoutSchema = z.object({
   vGap: z.number().nonnegative().default(80),
   padding: z.number().nonnegative().default(40),
 });
+
+export const styleSchema = z.object({
+  nodeFill: z.string().optional(),
+  nodeBorder: z.string().optional(),
+  nodeText: z.string().optional(),
+  edgeColor: z.string().optional(),
+  edgeLabelColor: z.string().optional(),
+  canvasBackground: z.string().optional(),
+  fontSize: z.number().positive().optional(),
+  edgeLabelFontSize: z.number().positive().optional(),
+  fontFamily: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+  strokeWidth: z.number().positive().optional(),
+  roughness: z.number().min(0).max(2).optional(),
+  fillStyle: z.enum(["solid", "hachure", "cross-hatch"]).optional(),
+  cornerRadius: z.union([z.boolean(), z.number().nonnegative()]).optional(),
+}) satisfies z.ZodType<StyleOptions>;
 
 const sceneSchema = z.object({
   type: z.literal("excalidraw"),
@@ -54,6 +71,7 @@ const flowToSceneInputSchema = z.object({
   seed: z.number().int().default(1),
   theme: z.enum(["light", "dark"]).default("light"),
   layout: layoutSchema.default(DEFAULT_LAYOUT satisfies LayoutConfig),
+  style: styleSchema.optional(),
 });
 
 const exportSceneInputSchema = z.object({
@@ -73,6 +91,7 @@ const generateAndExportSchema = z.object({
   seed: z.number().int().default(1),
   theme: z.enum(["light", "dark"]).default("light"),
   layout: layoutSchema.default(DEFAULT_LAYOUT satisfies LayoutConfig),
+  style: styleSchema.optional(),
   outDir: z.string().default("./out"),
   baseName: z.string().default("diagram"),
   formats: z.array(formatEnum).default(["excalidraw", "svg", "png"] as const),
@@ -95,6 +114,7 @@ export const generateSceneFromFlow = (
     seed: input.seed,
     theme: input.theme as Theme,
     layout: input.layout,
+    style: input.style,
   });
 };
 
@@ -209,7 +229,7 @@ const getEntryUrl = () => {
   const entry = process.argv[1];
   if (!entry) return "";
   try {
-    return new URL(`file://${path.resolve(entry)}`).toString();
+    return pathToFileURL(path.resolve(entry)).href;
   } catch {
     return "";
   }

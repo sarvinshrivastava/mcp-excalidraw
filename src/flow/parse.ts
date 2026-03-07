@@ -38,31 +38,34 @@ const hashString = (value: string) => {
 
 type TokenParse = { id: string; label?: string };
 
-const makeQuotedId = (() => {
-  const counts = new Map<string, number>();
-  return (label: string) => {
-    const base = `${slugify(label)}-${hashString(label).slice(0, 6)}`;
-    const next = (counts.get(base) ?? 0) + 1;
-    counts.set(base, next);
-    return next === 1 ? base : `${base}-${next}`;
+const makeQuotedId = (label: string, counts: Map<string, number>) => {
+  const base = `${slugify(label)}-${hashString(label).slice(0, 6)}`;
+  const next = (counts.get(base) ?? 0) + 1;
+  counts.set(base, next);
+  return next === 1 ? base : `${base}-${next}`;
+};
+
+const makeParseToken = (counts: Map<string, number>) => {
+  const labelToId = new Map<string, string>();
+  return (token: string): TokenParse => {
+    const trimmed = token.trim();
+    if (!trimmed) {
+      throw new ParseError("Empty token");
+    }
+
+    if (
+      (trimmed.startsWith(`"`) && trimmed.endsWith(`"`)) ||
+      (trimmed.startsWith(`'`) && trimmed.endsWith(`'`))
+    ) {
+      const label = trimmed.slice(1, -1);
+      if (labelToId.has(label)) return { id: labelToId.get(label)!, label };
+      const id = makeQuotedId(label, counts);
+      labelToId.set(label, id);
+      return { id, label };
+    }
+
+    return { id: trimmed };
   };
-})();
-
-const parseToken = (token: string): TokenParse => {
-  const trimmed = token.trim();
-  if (!trimmed) {
-    throw new ParseError("Empty token");
-  }
-
-  if (
-    (trimmed.startsWith(`"`) && trimmed.endsWith(`"`)) ||
-    (trimmed.startsWith(`'`) && trimmed.endsWith(`'`))
-  ) {
-    const label = trimmed.slice(1, -1);
-    return { id: makeQuotedId(label), label };
-  }
-
-  return { id: trimmed };
 };
 
 export const parseFlow = (input: string): FlowGraph => {
@@ -70,6 +73,11 @@ export const parseFlow = (input: string): FlowGraph => {
   if (!trimmed) {
     throw new ParseError("Flow is empty");
   }
+
+  // Fresh counts map per invocation — ensures identical inputs always produce
+  // identical node IDs regardless of how many times parseFlow has been called.
+  const counts = new Map<string, number>();
+  const parseToken = makeParseToken(counts);
 
   if (trimmed.startsWith("{")) {
     try {
@@ -132,7 +140,9 @@ export const parseFlow = (input: string): FlowGraph => {
       return;
     }
 
-    const edgeMatch = line.match(/^(.*?)\s*->\s*(.*?)(?::\s*(.*))?$/);
+    const edgeMatch = line.match(
+      /^(.*?)\s*->\s*((?:"[^"]*"|'[^']*'|[^:])*)\s*(?::\s*(.+))?$/,
+    );
     if (!edgeMatch) {
       throw new ParseError(`Could not parse line ${idx + 1}: "${line}"`);
     }

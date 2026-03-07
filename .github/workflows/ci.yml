@@ -9,7 +9,6 @@ on:
 permissions:
   contents: read
   checks: write        # required by dorny/test-reporter to post check runs
-  pull-requests: write # required to post coverage comment on the PR
 
 jobs:
   # ──────────────────────────────────────────────────────────────

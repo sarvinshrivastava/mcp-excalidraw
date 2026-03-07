@@ -242,4 +242,76 @@ describe("parseFlow — error cases", () => {
       expect((err as ParseError).message).toMatch(/2/);
     }
   });
+
+  it("throws ParseError with 'Empty token' when a DSL line has no from-node (starts with ->)", () => {
+    // "-> Target" produces an empty from-token after regex split, hitting the
+    // `if (!trimmed) throw new ParseError("Empty token")` branch in makeParseToken.
+    expect(() => parseFlow("-> SomeTarget")).toThrowError(/Empty token/i);
+  });
+});
+
+describe("parseFlow — quoted label reuse", () => {
+  it("same quoted label used in from and to positions creates a single node", () => {
+    const graph = parseFlow('"SharedServer" -> "TargetX"');
+    const shared = graph.nodes.filter((n) => n.label === "SharedServer");
+    expect(shared).toHaveLength(1);
+  });
+
+  it("same quoted label referenced in multiple edges produces one node", () => {
+    const graph = parseFlow('"HubNode" -> "LeafA"\n"HubNode" -> "LeafB"');
+    expect(graph.nodes).toHaveLength(3); // HubNode, LeafA, LeafB
+    expect(graph.nodes.filter((n) => n.label === "HubNode")).toHaveLength(1);
+  });
+
+  it("node with reused quoted label has correct label field", () => {
+    const graph = parseFlow('"ReuseMe" -> "EndZ"\n"ReuseMe" -> "EndW"');
+    const node = graph.nodes.find((n) => n.label === "ReuseMe");
+    expect(node).toBeDefined();
+    expect(node!.label).toBe("ReuseMe");
+  });
+
+  it("two separate parseFlow invocations with same label produce same deterministic ID", () => {
+    const graph1 = parseFlow('"UniqueLabel" -> "Other1"');
+    const graph2 = parseFlow('"UniqueLabel" -> "Other2"');
+    const node1 = graph1.nodes.find((n) => n.label === "UniqueLabel");
+    const node2 = graph2.nodes.find((n) => n.label === "UniqueLabel");
+    expect(node1?.id).toBe(node2?.id);
+  });
+
+  it("falls back to 'node' prefix when label contains only special chars (slugifies to empty)", () => {
+    // "!!!" → slugify → "" → slug || "node" fallback → id starts with "node-"
+    const graph = parseFlow('"!!!" -> End');
+    const n = graph.nodes.find((node) => node.label === "!!!");
+    expect(n).toBeDefined();
+    expect(n!.id).toMatch(/^node-/);
+  });
+});
+
+describe("parseFlow — edge label with colon inside quoted node", () => {
+  it("correctly parses node label containing a colon", () => {
+    const graph = parseFlow('"3 Tools: a / b" -> "OutputNode"');
+    const node = graph.nodes.find((n) => n.label === "3 Tools: a / b");
+    expect(node).toBeDefined();
+  });
+
+  it("separates colon-in-label from edge label", () => {
+    const graph = parseFlow('"ColonNode: here" -> "OutputZ" : exposes');
+    const node = graph.nodes.find((n) => n.label === "ColonNode: here");
+    expect(node).toBeDefined();
+    expect(graph.edges[0].label).toBe("exposes");
+  });
+
+  it("handles quoted nodes with colons and no edge label", () => {
+    const graph = parseFlow('"Node:X" -> "Node:Y"');
+    const nodeX = graph.nodes.find((n) => n.label === "Node:X");
+    const nodeY = graph.nodes.find((n) => n.label === "Node:Y");
+    expect(nodeX).toBeDefined();
+    expect(nodeY).toBeDefined();
+    expect(graph.edges[0].label).toBeUndefined();
+  });
+
+  it("bare identifier edge with colon label still works", () => {
+    const graph = parseFlow("A -> B : go");
+    expect(graph.edges[0].label).toBe("go");
+  });
 });
